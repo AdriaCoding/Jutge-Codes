@@ -14,27 +14,32 @@ struct Edge {
 vector<int> parent; // stores the parent of each node
 
 int repre(int x) {
-    return (parent[x] == -1 ? x : parent[x] = repre(parent[x]));
+    if (parent[x] == x) return x;
+    int res = repre(parent[x]);
+    parent[x] = res ;
+    return res ;
 }
 
-vector<Edge> spanning_tree(int n, vector<Edge>& G) {
-    int G_size = G.size();
-    vector<Edge> T;
-    parent = vector<int>(n, -1);
-    
+void solve(int n, vector<Edge>& G) {
     sort(G.begin(), G.end());
-    
-    for (int i = 0; n > 1 && i < G_size; i++) {
-        int rx = repre(G[i].x), ry = repre(G[i].y);
-        if (rx != ry) {
+
+    parent = vector<int>(n);
+    for (int i = 0; i < n; i++) parent[i] = i;
+
+    int min_cost = 0, min_edges = 0, max_edges = 0;
+    for (Edge& e : G) {
+        int rx = repre(e.x), ry = repre(e.y);
+        if (rx != ry or e.c < 0) {
             parent[rx] = ry;
-            n--;
-            T.push_back(G[i]);
+            min_cost += e.c;
+            min_edges++;
+            max_edges++;
         }
+        else if (e.c == 0) max_edges++;
     }
-    return T;
+    cout << min_cost << " " << min_edges << " " << max_edges << endl;
 }
- 
+
 int main() {
     int n, m;
     while(cin >> n >> m){
@@ -42,10 +47,7 @@ int main() {
         for (int i = 0; i < m; i++) {
             cin >> G[i].x >> G[i].y >> G[i].c;
         }
-        vector<Edge> T = spanning_tree(n, G);
-        cout << "Spanning Tree:" << endl;
-        for (int i = 0; i < T.size(); i++) {
-            cout << i << ": " << T[i].x << " " << T[i].y << " " << T[i].c << endl;
-        }cout << endl;
+        solve(n, G);
     }
+
 }
