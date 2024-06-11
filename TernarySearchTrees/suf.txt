@@ -1,0 +1,22 @@
+E a
+I abba
+C a
+I cba
+C cba
+C abba
+C a
+C ba
+I abba
+C ba
+E cba
+C cba
+C a
+E ba
+C ba
+R
+C ba
+I eggs
+I zzeggs
+C eggs
+E eggs
+C eggs
