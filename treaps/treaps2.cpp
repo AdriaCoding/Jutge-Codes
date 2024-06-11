@@ -9,10 +9,10 @@ const int MOD = 1e9;
 using Treap = struct Node*;
 
 struct Node {
-    int key, sum, size;
+    int key, priority, sum, size;
     Treap l, r;
 
-    Node(int key) : key(key), sum(key), size(1), l(nullptr), r(nullptr) {}
+    Node(int key) : key(key), priority(rand()), sum(key), size(1), l(nullptr), r(nullptr) {}
 };
 
 void update(Treap t) {
@@ -33,7 +33,26 @@ void print_tree(Treap t) {
     if (!t) return;
     print_tree(t->l);
     std::cout << "Key: " << t->key << ", Sum: " << t->sum << ", Size: " << t->size << "\n";
+    cout << "Left: " << (t->l ? t->l->key : -1) << ", Right: " << (t->r ? t->r->key : -1) << endl;
     print_tree(t->r);
+}
+
+void rotate_right(Treap& t) {
+    Treap temp = t->l;
+    t->l = temp->r;
+    temp->r = t;
+    t = temp;
+    update(t->r);
+    update(t);
+}
+
+void rotate_left(Treap& t) {
+    Treap temp = t->r;
+    t->r = temp->l;
+    temp->l = t;
+    t = temp;
+    update(t->l);
+    update(t);
 }
 
 bool insert(Treap& t, int key) {
@@ -47,21 +66,13 @@ bool insert(Treap& t, int key) {
     bool isPresent;
     if (key < t->key) {
         isPresent = insert(t->l, key);
-        if (t->l->key > t->key) {
-            Treap temp = t->l;
-            t->l = temp->r;
-            temp->r = t;
-            t = temp;
-            update(t->r);
+        if (t->l && t->l->priority > t->priority) {
+            rotate_right(t);
         }
     } else {
         isPresent = insert(t->r, key);
-        if (t->r->key > t->key) {
-            Treap temp = t->r;
-            t->r = temp->l;
-            temp->l = t;
-            t = temp;
-            update(t->l);
+        if (t->r && t->r->priority > t->priority) {
+            rotate_left(t);
         }
     }
     update(t);
@@ -74,29 +85,20 @@ int sum_range(Treap t, int i, int j) {
     int left_size = t->l ? t->l->size : 0;
     if (j <= left_size) return sum_range(t->l, i, j)%MOD;
     if (i > left_size + 1) return sum_range(t->r, i - left_size - 1, j - left_size - 1)%MOD;
-    return ((t->l ? sum_range(t->l, i, left_size) : 0) + t->key + (t->r ? sum_range(t->r, 1, j - left_size - 1) : 0)) % MOD;
-}
-
-int find_ith (int i, Treap t) {
-    if (!t) return 0;
-    int s = t->l ? t->l->size : 0;
-    if (i < s) return find_ith(i, t->l);
-    if (i > s) return find_ith(i - s - 1, t->r);
-    return t->sum;
+    return ((t->l ? sum_range(t->l, i, left_size) : 0) + t->key + (t->r ? sum_range(t->r, 1, j - left_size -1) : 0)) % MOD;
 }
 
 int main() {
-    srand(time(NULL));
+    srand(0);
     int m;
     while (cin >> m && m != 0) {
         Treap root = new Node(0);
         for (int inserts = 0; inserts < m; inserts++) {
             int y, i, j;
             cin >> y >> i >> j;
-            print_tree(root);
-            cout << "sum_range: " << sum_range(root, i, j) << endl;
-            cout << "find_ith: " << find_ith(i, root) << endl;
-            cout << "find_jth: " << find_ith(j, root) << endl;
+            
+            //print_tree(root);
+            //cout << "sum_range " << i << " " << j << ": "<< sum_range(root, i, j) << endl;            
             int z = (y + sum_range(root, i, j)) % MOD;
             if (insert(root, z)) {
                 std::cout << "R " << z << "\n";
@@ -104,6 +106,7 @@ int main() {
                 std::cout << "I " << z << "\n";
             }
         }
+        //if (m == 10) cout << sum_range(root, 3, 5) << endl;
         cout << "----------" << endl;
     }
     return 0;
