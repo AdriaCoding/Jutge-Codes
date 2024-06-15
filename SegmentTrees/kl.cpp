@@ -2,7 +2,7 @@
 using namespace std;
 
 const int MAXN = 3e4 + 5;
-int n, q, a[MAXN], tree[4*MAXN], minTree[4*MAXN];
+int n, q, a[MAXN], tree[4*MAXN], minElement;
 
 void displayTree(int node, int start, int end) {
     // Base case: leaf node
@@ -21,7 +21,7 @@ void displayTree(int node, int start, int end) {
 }
 
 void displayArray(int a[], int n) {
-    cout << "Weight array: ";
+    cout << "Weight array with min element " << minElement << ": ";
     for (int i = 1; i <= n; i++) {
         cout << a[i] << " ";
     }
@@ -32,13 +32,12 @@ void displayArray(int a[], int n) {
 void build(int node, int start, int end) {
     if(start == end) {
         tree[node] = a[start];
-        minTree[node] = a[start];
+        minElement = min(minElement, a[start]);
     } else {
         int mid = (start + end) / 2;
         build(2*node, start, mid);
         build(2*node+1, mid+1, end);
         tree[node] = tree[2*node] + tree[2*node+1];
-        minTree[node] = min(minTree[2*node], minTree[2*node+1]);        
     }
 }
 
@@ -46,7 +45,7 @@ void update(int node, int start, int end, int idx, int val) {
     if(start == end) {
         a[idx] += val;
         tree[node] += val;
-        minTree[node] = a[idx]; // Update minTree
+        minElement = min(minElement, a[idx]); 
     } else {
         int mid = (start + end) / 2;
         if(start <= idx && idx <= mid) {
@@ -55,21 +54,7 @@ void update(int node, int start, int end, int idx, int val) {
             update(2*node+1, mid+1, end, idx, val);
         }
         tree[node] = tree[2*node] + tree[2*node+1];
-        minTree[node] = min(minTree[2*node], minTree[2*node+1]); // Update minTree
     }
-}
-
-int queryMin(int node, int start, int end, int l, int r) {
-    if(r < start || end < l) {
-        return INT_MAX;
-    }
-    if(l <= start && end <= r) {
-        return minTree[node];
-    }
-    int mid = (start + end) / 2;
-    int p1 = queryMin(2*node, start, mid, l, r);
-    int p2 = queryMin(2*node+1, mid+1, end, l, r);
-    return min(p1, p2);
 }
 
 int query(int node, int start, int end, int sum) {
@@ -93,6 +78,7 @@ int gcd(int a, int b) {
 
 int main() {
     while (cin >> n >> q) {
+        minElement = INT_MAX;
         for(int i = 1; i <= n; i++) {
             a[i] = 1;
         }
@@ -110,7 +96,7 @@ int main() {
                 }
             } else {
                 update(1, 1, n, idx, 1);
-                if(queryMin(1, 1, n, 1, n) == 2){
+                if(minElement == 2){
                     displayArray(a, n);
                     for(int i = 1; i <= n; i++) {
                         update(1, 1, n, i, -1);
