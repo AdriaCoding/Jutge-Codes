@@ -2,7 +2,7 @@
 using namespace std;
 
 const int MAXN = 3e4 + 5;
-int n, q, a[MAXN], tree[4*MAXN], minElement;
+int n, q, a[MAXN], tree[4*MAXN], lazy[4*MAXN], minElement;
 
 void displayTree(int node, int start, int end) {
     // Base case: leaf node
@@ -30,6 +30,7 @@ void displayArray(int a[], int n) {
 
 
 void build(int node, int start, int end) {
+    lazy[node] = 0; //Initializy lazy 
     if(start == end) {
         tree[node] = a[start];
         minElement = min(minElement, a[start]);
@@ -42,6 +43,14 @@ void build(int node, int start, int end) {
 }
 
 void update(int node, int start, int end, int idx, int val) {
+    if (lazy[node] != 0){
+        tree[node] += (end - start + 1) * lazy[node];
+        if(start != end) {
+            lazy[2*node] += lazy[node];
+            lazy[2*node+1] += lazy[node];
+        }
+        lazy[node] = 0;
+    }    
     if(start == end) {
         a[idx] += val;
         tree[node] += val;
@@ -57,7 +66,16 @@ void update(int node, int start, int end, int idx, int val) {
     }
 }
 
+
 int query(int node, int start, int end, int sum) {
+    if (lazy[node] != 0){
+        tree[node] += (end - start + 1) * lazy[node];
+        if(start != end) {
+            lazy[2*node] += lazy[node];
+            lazy[2*node+1] += lazy[node];
+        }
+        lazy[node] = 0;
+    }
     if(start == end) {
         return start;
     } else {
@@ -69,6 +87,8 @@ int query(int node, int start, int end, int sum) {
         }
     }
 }
+
+
 
 int gcd(int a, int b) {
     if (b == 0)
