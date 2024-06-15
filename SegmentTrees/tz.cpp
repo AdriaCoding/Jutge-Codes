@@ -47,7 +47,9 @@ void update(ST& t, double l, double r, double yl, double yr){
     double cut, ycut;
     if(t->lt) {
         cut = t->lt->r;
-        if(cut > r) return update(t->lt, l, r, yl, yr);
+        // if l < r =< cut
+        if(cut >= r) return update(t->lt, l, r, yl, yr);
+        // if l < cut < r
         else if (cut > l) {
             ycut = height(cut, l, r, yl, yr);
             update(t->lt, l, cut, yl, ycut);
@@ -62,17 +64,20 @@ void update(ST& t, double l, double r, double yl, double yr){
         }
     }
     if (!t->rt && !t->lt){
-        // I can suppose that t->l<= l < r <= t->r
-        if (t->l == l && t->r == r) {
-            t->yl += yl;
-            t->yr += yr;
-            return;
-        }
-        // Here we assume t->l  < l || r < t->r
+
         cut = (l == t->l ? r : l);
         ycut = t->height(cut);
-        t->lt = new Node(t->l, cut, t->yl, ycut);
-        t->rt = new Node(cut, t->r, ycut, t->yr);
+        // I can suppose that t->l<= l < r <= t->r
+        if (t->l == l) t->yl += yl;
+        if (t->r == r) t->yr += yr;
+        if (t->l == l && t->r == r) return;
+        // Here we assume t->l  < l || r < t->r
+        //cout << "hola. Estic fent cut a "<< cut << " a " << t->l << " " << t->r << endl;
+        //cout << ycut << " " << t->height(cut) << " " << yl << " " << yr << endl;
+        t->lt = new Node(t->l, cut, t->yl, ycut + (t->l == l ? yr : 0)) ;
+        //cout << "nou node " << t->lt->l << " " << t->lt->r << " " << t->lt->yl << " " << t->lt->yr << endl;
+        t->rt = new Node(cut, t->r, ycut + (t->l == l ? 0 : yl), t->yr);
+        //cout << "nou node" << t->rt->l << " " << t->rt->r << " " << t->rt->yl << " " << t->rt->yr << endl;
         if (t->l < l && r < t->r){
             // we have to split the rightmost node into 2 nodes
             double hl = t->height(l);
