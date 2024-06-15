@@ -103,14 +103,14 @@ int main() {
                 }
             } else {
                 updateRange(1, 1, n, idx, idx, 1);
-                displayArray(n);
+                //displayArray(n);
                 if (querySingle(1, 1, n, idx) == 2) {
                     cout << querySingle(1, 1, n, idx) << "Decreaing size" << endl;
                     for (int i = 1; i <= n; i++) {
                         updateRange(1, 1, n, i, i, -1);
                     }
                 }
-                displayArray(n);
+                //displayArray(n);
             }
         }
         int totalSum = tree[1];
