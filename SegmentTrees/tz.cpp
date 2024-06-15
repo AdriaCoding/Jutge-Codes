@@ -63,13 +63,23 @@ void update(ST& t, double l, double r, double yl, double yr){
     }
     if (!t->rt && !t->lt){
         // I can suppose that t->l<= l < r <= t->r
-        double hl = t->height(l);
-        double hr = t->height(r);
-        update(t->lt, t->l, l, t->yl, hl);
-        update(t->rt, l, t->r, hl, t->yr);
-        // we have to split the rightmost node into 2 nodes
-        update(t->rt->lt, l, r, hl + yl, hr + yr);
-        update(t->rt->rt, r, t->r, hr, t->yr);
+        if (t->l == l && t->r == r) {
+            t->yl += yl;
+            t->yr += yr;
+            return;
+        }
+        // Here we assume t->l  < l || r < t->r
+        cut = (l == t->l ? r : l);
+        ycut = t->height(cut);
+        t->lt = new Node(t->l, cut, t->yl, ycut);
+        t->rt = new Node(cut, t->r, ycut, t->yr);
+        if (t->l < l && r < t->r){
+            // we have to split the rightmost node into 2 nodes
+            double hl = t->height(l);
+            double hr = t->height(r);
+            t->rt->lt = new Node(l, r, hl + yl, hr + yr);
+            t->rt->rt = new Node(r, t->r, hr, t->yr);
+        }
                    
     }
 }
@@ -92,8 +102,7 @@ int main(){
                 double l, r, yl, yr;
                 cin >> l >> r >> yl >> yr;
                 update(root, l, r, yl, yr);
-                print_tree(root);
-                cout << endl;
+                //print_tree(root); cout << endl;
             } else {
                 double x;
                 cin >> x;
