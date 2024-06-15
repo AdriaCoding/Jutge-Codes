@@ -133,6 +133,7 @@ int main() {
             //displayTree(1, 1, n);
             //displayArray(a, n); cout << endl;
         }
+        int totalSum = tree[1];
         int num, den;
         for(int i = 1; i <= n; i++) {
             int commonDivisor = queryGcd(1, 1, n, i, i, totalSum); // Use segment tree to compute GCD
