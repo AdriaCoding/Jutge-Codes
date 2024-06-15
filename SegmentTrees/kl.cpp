@@ -91,19 +91,6 @@ int gcd(int a, int b) {
     return gcd(b, a % b);
 }
 
-int queryGcd(int node, int start, int end, int l, int r, int totalSum) {
-    if(r < start || end < l) {
-        return totalSum;
-    }
-    if(l <= start && end <= r) {
-        return gcd(tree[node], totalSum);
-    }
-    int mid = (start + end) / 2;
-    int p1 = queryGcd(2*node, start, mid, l, r, totalSum);
-    int p2 = queryGcd(2*node+1, mid+1, end, l, r, totalSum);
-    return gcd(p1, p2);
-}
-
 int main() {
     while (cin >> n >> q) {
         for(int i = 1; i <= n; i++) {
@@ -136,7 +123,7 @@ int main() {
         int totalSum = tree[1];
         int num, den;
         for(int i = 1; i <= n; i++) {
-            int commonDivisor = queryGcd(1, 1, n, i, i, totalSum); // Use segment tree to compute GCD
+            int commonDivisor = gcd(a[i], totalSum); 
             num = a[i] / commonDivisor;
             den = tree[1] / commonDivisor;
             cout << num << "/" << den << "\n";
